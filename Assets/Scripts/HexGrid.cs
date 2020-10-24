@@ -61,6 +61,33 @@ public class HexGrid : MonoBehaviour
         cell.transform.localPosition = position;
         cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
         cell.color = defaultColor;
+        //连接E-W相连的单元格，第一个除外，无E方向
+        if (x > 0)
+        {
+            cell.SetNeighbor(HexDirection.W, cells[i - 1]);
+        }
+        
+        if (z > 0)
+        {
+            if ((z & 1) == 0)// z & 1 位运算，表示偶数
+            {
+                //连接S-E相连的单元格，先处理偶数行
+                cell.SetNeighbor(HexDirection.SE, cells[i - width]);
+                //连接SW方向的单元格,每一行的第一个单元格，它们SW方向是空的。
+                if (x > 0)
+                {
+                    cell.SetNeighbor(HexDirection.SW, cells[i - width - 1]);
+                }
+            }
+            else //奇数行跟偶数行镜像的逻辑，，先处理SW，再处理SE，每行的最后一个单元格SE是空的
+            {
+                cell.SetNeighbor(HexDirection.SW, cells[i - width]);
+                if (x < width - 1)
+                {
+                    cell.SetNeighbor(HexDirection.SE, cells[i - width + 1]);
+                }
+            }
+        }
 
         //显示坐标
         Text label = Instantiate<Text>(cellLabelPrefab);
